@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import math
 import pandas as pd
 
-# ===== Вхідні дані (твій варіант 17) =====
 N = 8
 F = 580e6
 c = 299792458
@@ -16,7 +15,6 @@ print(f"dср = {d:.4f} м")
 print(f"k = {k:.4f} рад/м")
 
 
-# ===== Функції =====
 def F1E(theta):
     """ДС напівхвильового вібратора (E-площина)"""
     return abs(np.cos(np.pi/2 * np.sin(theta)) / np.cos(theta))
@@ -31,7 +29,6 @@ def FE(theta):
     return F1E(theta) * FC(theta)
 
 
-# ===== Розрахунок =====
 theta_range = np.arange(0.01, np.pi/2, 0.0005)  # від 0 до 90°
 steps_deg = np.degrees(theta_range)
 
@@ -39,7 +36,6 @@ F1E_vals = F1E(theta_range)
 FC_vals = FC(theta_range)
 FE_vals = FE(theta_range)
 
-# Ширина головної пелюстки (на рівні 0.707)
 SGP_H = 2 * steps_deg[np.argmin(abs(FC_vals - 0.707))]
 SGP_E = 2 * steps_deg[np.argmin(abs(FE_vals - 0.707))]
 
@@ -47,7 +43,6 @@ print(f"Ширина головної пелюстки в площині H = {SG
 print(f"Ширина головної пелюстки в площині E = {SGP_E:.2f}°")
 
 
-# ===== Пошук максимумів і мінімумів =====
 def find_extrema(values, steps):
     maxima, minima = [], []
     for i in range(1, len(values) - 1):
@@ -60,7 +55,6 @@ def find_extrema(values, steps):
 max_FC, min_FC = find_extrema(FC_vals, steps_deg)
 max_FE, min_FE = find_extrema(FE_vals, steps_deg)
 
-# ===== Таблиця =====
 df = pd.DataFrame({
     "№": range(1, max(len(max_FC), len(max_FE)) + 1),
     "θminH (°)": [f"{x[0]:.2f}" for x in min_FC] + ["-"] * (len(max_FE) - len(min_FC)),
