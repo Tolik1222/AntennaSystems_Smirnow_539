@@ -1,11 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 import pandas as pd
 
 N = 8
-F = 580e6
-c = 299792458
+F = 580e6  # Гц
+c = 299792458  # м/с
 lambd = c / F
 d = 0.25 * lambd
 k = (2 * np.pi) / lambd
@@ -20,7 +19,7 @@ def F1E(theta):
     return abs(np.cos(np.pi/2 * np.sin(theta)) / np.cos(theta))
 
 def FC(theta):
-    """Множник решітки"""
+    """Множник решітки (H-площина)"""
     return abs(np.sin((N * k * d * (1 - np.cos(theta)) / 2)) /
                (N * np.sin((k * d * (1 - np.cos(theta))) / 2)))
 
@@ -55,6 +54,7 @@ def find_extrema(values, steps):
 max_FC, min_FC = find_extrema(FC_vals, steps_deg)
 max_FE, min_FE = find_extrema(FE_vals, steps_deg)
 
+
 df = pd.DataFrame({
     "№": range(1, max(len(max_FC), len(max_FE)) + 1),
     "θminH (°)": [f"{x[0]:.2f}" for x in min_FC] + ["-"] * (len(max_FE) - len(min_FC)),
@@ -69,20 +69,30 @@ print("\nТаблиця 1 – Аналіз ДС директорної анте�
 print(df.to_string(index=False))
 
 
-# ===== Побудова графіків =====
-plt.figure(figsize=(9, 6))
+plt.figure(figsize=(10, 6))
+
 plt.plot(steps_deg, F1E_vals, label="F1E(θ) – вібратор", color="gray", linestyle="--", linewidth=1.2)
 plt.plot(steps_deg, FC_vals, label="FH(θ) – H площина", color="blue", linewidth=1.5)
 plt.plot(steps_deg, FE_vals, label="FE(θ) – E площина", color="red", linewidth=1.5)
 
-# Позначимо ШГП
+plt.axhline(0.707, color="black", linestyle=":", linewidth=1, label="F = 0.707")
+
+plt.scatter([SGP_H/2], [0.707], color="blue", marker="o", s=60, zorder=5, label="ШГП H")
+plt.scatter([SGP_E/2], [0.707], color="red", marker="o", s=60, zorder=5, label="ШГП E")
+
 plt.axvline(SGP_H/2, color="blue", linestyle=":", linewidth=1)
 plt.axvline(SGP_E/2, color="red", linestyle=":", linewidth=1)
-plt.scatter([SGP_H/2], [0.707], color="blue", marker="o")
-plt.scatter([SGP_E/2], [0.707], color="red", marker="o")
-
 plt.text(SGP_H/2+1, 0.72, f"{SGP_H:.1f}°", color="blue")
 plt.text(SGP_E/2+1, 0.75, f"{SGP_E:.1f}°", color="red")
+
+if max_FC:
+    plt.scatter([x[0] for x in max_FC], [x[1] for x in max_FC], color="blue", marker="^", label="Макс. H", zorder=5)
+if min_FC:
+    plt.scatter([x[0] for x in min_FC], [x[1] for x in min_FC], color="blue", marker="v", label="Мін. H", zorder=5)
+if max_FE:
+    plt.scatter([x[0] for x in max_FE], [x[1] for x in max_FE], color="red", marker="^", label="Макс. E", zorder=5)
+if min_FE:
+    plt.scatter([x[0] for x in min_FE], [x[1] for x in min_FE], color="lime", marker="v", label="Мін. E", zorder=5)
 
 plt.title("Діаграми спрямованості директорної антени", fontsize=12, weight="bold")
 plt.xlabel("Кут θ (°)", fontsize=11)
